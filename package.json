@@ -1,0 +1,60 @@
+{
+  "name": "@dada78641/tunetags",
+  "description": "Library for reading audio tags",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "readme.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "watch": "tsup --watch src",
+    "check": "tsc -p ./tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dada78641/tunetags.git"
+  },
+  "bin": {
+    "tunetags": "dist/tunetags.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@dada78641/eslint-config": "^1.0.1",
+    "@types/argparse": "^2.0.17",
+    "@types/lodash-es": "^4.17.12",
+    "@types/lodash.pick": "^4.4.9",
+    "@types/node": "^22.8.6",
+    "eslint": "^9.34.0",
+    "jiti": "^2.5.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "lodash.pick": "^4.4.0",
+    "music-metadata": "^11.10.3"
+  }
+}
