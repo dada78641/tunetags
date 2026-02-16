@@ -3,7 +3,7 @@
 
 import pick from 'lodash.pick'
 import {parseFile} from 'music-metadata'
-import type {TTFileTags, TTFormatTags, TTCommonTags, TTNativeTag} from '../types.ts'
+import type {TTFileTags, TTFormatTags, TTCommonTags, TTNativeTag, TTNativeTags} from '../types.ts'
 import type {IAudioMetadata, ICommonTagsResult, IFormat} from 'music-metadata'
 
 /** File metadata tags we're primarily interested in. */
@@ -37,7 +37,7 @@ const FORMAT_TAGS = [
 /**
  * Merges together all native tag types into a single list.
  */
-function mergeNativeTagTypes(nativeTagTypes: IAudioMetadata['native']): {[key: string]: TTNativeTag} {
+function mergeNativeTagTypes(nativeTagTypes: IAudioMetadata['native']): TTNativeTags {
   const combinedTags = []
   for (const [type, tags] of Object.entries(nativeTagTypes)) {
     for (const tag of tags) {
@@ -45,6 +45,20 @@ function mergeNativeTagTypes(nativeTagTypes: IAudioMetadata['native']): {[key: s
     }
   }
   return Object.fromEntries(combinedTags)
+}
+
+/**
+ * Picks one of a number of native tags, or the fallback value.
+ */
+function pickNativeTagAlternative<T = any>(nativeTags: TTNativeTags, keys: string[], fallback: T): string | T {
+  for (const key of keys) {
+    const tag = nativeTags[key]
+    if (tag == null || tag?.value == null) {
+      continue
+    }
+    return tag.value
+  }
+  return fallback
 }
 
 /**
@@ -113,7 +127,7 @@ function pickCommonTags(commonTags: ICommonTagsResult, formatTags: IFormat, nati
   // Use CATEGORY and CONTENTGROUP if they exist and there is no commonTags.grouping value.
   // This should allow opus/ogg files to properly have a grouping.
   if (!commonTags.grouping && nativeTags['CATEGORY'] || nativeTags['CONTENTGROUP']) {
-    commonTags.grouping = nativeTags['CATEGORY'].value ? nativeTags['CONTENTGROUP'].value : undefined
+    commonTags.grouping = pickNativeTagAlternative<undefined>(nativeTags, ['CATEGORY', 'CONTENTGROUP'], undefined)
   }
   // "rating" is an interesting one. Files can have multiple ratings, from multiple sources.
   // This library always collapses them into a single tag value 1-5, named "stars".

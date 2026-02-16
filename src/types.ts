@@ -5,7 +5,7 @@ import type {IAudioMetadata, ICommonTagsResult, IFormat} from 'music-metadata'
 
 /** Types for our picked tag lists. */
 export type TTFormatKeys = 'container' | 'codec' | 'duration' | 'sampleRate' | 'bitsPerSample' | 'numberOfChannels' | 'lossless'
-export type TTCommonKeys = 'title' | 'album' | 'artists' | 'albumartist' | 'genre' | 'year' | 'track' | 'disk' | 'replaygain_album_gain' | 'replaygain_album_peak' | 'replaygain_track_gain' | 'replaygain_track_peak'
+export type TTCommonKeys = 'title' | 'album' | 'artists' | 'albumartist' | 'genre' | 'year' | 'track' | 'disk' | 'grouping' | 'replaygain_album_gain' | 'replaygain_album_peak' | 'replaygain_track_gain' | 'replaygain_track_peak'
 export type TTFormatTags = Partial<Pick<IFormat, TTFormatKeys>>
 export type TTCommonTags = Partial<Pick<ICommonTagsResult, TTCommonKeys>> & {
   stars: number | null
@@ -13,6 +13,7 @@ export type TTCommonTags = Partial<Pick<ICommonTagsResult, TTCommonKeys>> & {
 
 /** Native tags; e.g. "vorbis", "iTunes", etc. */
 export type TTNativeTag = {id: string, value: string, type: string}
+export type TTNativeTags = {[key: string]: TTNativeTag}
 
 /** Full result. */
 export type TTFileTags = {
