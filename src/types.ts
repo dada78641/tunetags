@@ -11,6 +11,9 @@ export type TTCommonTags = Partial<Pick<ICommonTagsResult, TTCommonKeys>> & {
   stars: number | null
 }
 
+/** Native tags; e.g. "vorbis", "iTunes", etc. */
+export type TTNativeTag = {id: string, value: string, type: string}
+
 /** Full result. */
 export type TTFileTags = {
   metadata: TTCommonTags

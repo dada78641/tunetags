@@ -3,7 +3,7 @@
 
 import pick from 'lodash.pick'
 import {parseFile} from 'music-metadata'
-import type {TTFileTags, TTFormatTags, TTCommonTags} from '../types.ts'
+import type {TTFileTags, TTFormatTags, TTCommonTags, TTNativeTag} from '../types.ts'
 import type {IAudioMetadata, ICommonTagsResult, IFormat} from 'music-metadata'
 
 /** File metadata tags we're primarily interested in. */
@@ -16,6 +16,7 @@ const COMMON_TAGS = [
   'year',
   'track',
   'disk',
+  'grouping',
   'replaygain_album_gain',
   'replaygain_album_peak',
   'replaygain_track_gain',
@@ -32,6 +33,19 @@ const FORMAT_TAGS = [
   'numberOfChannels',
   'lossless',
 ]
+
+/**
+ * Merges together all native tag types into a single list.
+ */
+function mergeNativeTagTypes(nativeTagTypes: IAudioMetadata['native']): {[key: string]: TTNativeTag} {
+  const combinedTags = []
+  for (const [type, tags] of Object.entries(nativeTagTypes)) {
+    for (const tag of tags) {
+      combinedTags.push([tag.id, {id: tag.id, value: String(tag.value), type}])
+    }
+  }
+  return Object.fromEntries(combinedTags)
+}
 
 /**
  * Runs the input file through music-metadata and returns its result.
@@ -81,7 +95,8 @@ function pickStarsTag(commonTags: ICommonTagsResult, formatTags: IFormat): TTCom
  * 
  * These are the actual metadata key/value tags, such as artist, title, album, etc.
  */
-function pickCommonTags(commonTags: ICommonTagsResult, formatTags: IFormat): TTCommonTags {
+function pickCommonTags(commonTags: ICommonTagsResult, formatTags: IFormat, nativeTagTypes: IAudioMetadata['native']): TTCommonTags {
+  const nativeTags = mergeNativeTagTypes(nativeTagTypes)
   // Ensure there's an "artists" array.
   if (!commonTags.artists && commonTags.artist) {
     commonTags.artists = [commonTags.artist]
@@ -94,6 +109,11 @@ function pickCommonTags(commonTags: ICommonTagsResult, formatTags: IFormat): TTC
   // but apparently it's sometimes an array of strings instead in practice.
   if (Array.isArray(commonTags.albumartist)) {
     commonTags.albumartist = commonTags.albumartist[0]
+  }
+  // Use CATEGORY and CONTENTGROUP if they exist and there is no commonTags.grouping value.
+  // This should allow opus/ogg files to properly have a grouping.
+  if (!commonTags.grouping && nativeTags['CATEGORY'] || nativeTags['CONTENTGROUP']) {
+    commonTags.grouping = nativeTags['CATEGORY'].value ? nativeTags['CONTENTGROUP'].value : undefined
   }
   // "rating" is an interesting one. Files can have multiple ratings, from multiple sources.
   // This library always collapses them into a single tag value 1-5, named "stars".
@@ -115,7 +135,7 @@ function pickFormatTags(formatTags: IFormat): TTFormatTags {
  */
 export async function parseFileTags(filepath: string): Promise<TTFileTags> {
   const data = await getMusicMetadataTags(filepath)
-  const common = pickCommonTags(data.common, data.format)
+  const common = pickCommonTags(data.common, data.format, data.native)
   const format = pickFormatTags(data.format)
   return {
     metadata: common,
