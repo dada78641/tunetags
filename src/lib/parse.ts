@@ -65,7 +65,7 @@ function pickNativeTagAlternative<T = any>(nativeTags: TTNativeTags, keys: strin
  * Runs the input file through music-metadata and returns its result.
  */
 async function getMusicMetadataTags(filepath: string): Promise<IAudioMetadata> {
-  return parseFile(filepath)
+  return parseFile(filepath, {duration: true})
 }
 
 /**
