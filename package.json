@@ -1,7 +1,7 @@
 {
   "name": "@dada78641/tunetags",
   "description": "Library for reading audio tags",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
